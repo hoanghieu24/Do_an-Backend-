@@ -105,7 +105,7 @@ public class HomeController {
         int totalItems = buildingService.countTotalItems();
         params.setTotalItems(totalItems);
         int totalPages = (int) Math.ceil((double) totalItems / params.getMaxPageItems());
-        params.setTotalPage(totalPages);
+        params.setTotalPage(Integer.valueOf(totalPages));
 
         // Định dạng giá thuê
         DecimalFormat decimalFormat = new DecimalFormat("#,###.###");

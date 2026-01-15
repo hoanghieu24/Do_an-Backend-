@@ -13,4 +13,5 @@ public interface CustomerRepositoryCustom {
     List<CustomerEntity> getAllCustomer(Pageable pageable);
 //    public List<CustomerEntity> findAll(BuildingSearchBuilder customerEntity);
 public List<CustomerEntity> findAll(CustomerSearchBuilder customerSearchBuilder);
+    List<CustomerEntity> findByStaffAndCondition(Long staffId, CustomerSearchBuilder builder);
 }

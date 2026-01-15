@@ -20,7 +20,7 @@ public class SystemConstant {
     public static final String PASSWORD_DEFAULT = "123456";
     public static final String CHANGE_PASSWORD_FAIL = "change_password_fail";
     public static final String BUILDING_NOT_FOUND = "BUILDING_NOT_FOUND";
-    public static final String Path_Image = "C:\\Users\\Nitro 5\\Desktop\\DO_An_2\\img";
+    public static final String Path_Image = "C:\\Users\\Nitro 5\\Desktop\\Do_An_tot_Nghiep\\img";
 
 
 }

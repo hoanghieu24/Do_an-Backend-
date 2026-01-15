@@ -1,0 +1,522 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="vi" lang="vi">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>HỢP ĐỒNG THUÊ, MUA BÁN BẤT ĐỘNG SẢN</title>
+    <style type="text/css">
+        /* Reset và base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Times New Roman", Times, serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background-color: #f8f9fa;
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        /* Container chính */
+        .contract-container {
+            max-width: 794px; /* A4 width */
+            min-height: 1123px; /* A4 height */
+            margin: 0 auto;
+            background: #ffffff;
+            border: 2px solid #34495e;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            padding: 40px;
+        }
+
+        /* Header Quốc hiệu */
+        .national-header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px double #e74c3c;
+        }
+
+        .national-header .vietnam {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .national-header .slogan {
+            font-size: 14px;
+            font-style: italic;
+            color: #e74c3c;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Header hợp đồng */
+        .contract-header {
+            text-align: center;
+            margin: 30px 0 25px 0;
+            padding: 20px 0;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .contract-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .contract-code {
+            font-size: 15px;
+            color: #e74c3c;
+            font-weight: bold;
+            font-style: italic;
+        }
+
+        /* Nội dung chính */
+        .contract-content {
+            margin: 25px 0;
+        }
+
+        /* Thông tin cơ bản */
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .info-item {
+            margin-bottom: 8px;
+            padding: 3px 0;
+        }
+
+        .info-label {
+            display: inline-block;
+            min-width: 200px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .info-value {
+            color: #000000; /* Đổi thành màu đen cho dễ nhìn */
+        }
+
+        /* Phần bên A, bên B */
+        .party-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+        }
+
+        .party-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+        }
+
+        .party-info {
+            margin-left: 20px;
+        }
+
+        /* Tiêu đề section */
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 25px 0 15px 0;
+            padding: 10px 0;
+            text-align: center;
+            text-transform: uppercase;
+            border-bottom: 2px solid #3498db;
+            border-top: 2px solid #3498db;
+        }
+
+        /* Bảng thông tin BĐS */
+        .property-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            border: 1px solid #bdc3c7;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .property-table th {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: black;
+            font-weight: bold;
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #2980b9;
+            width: 35%;
+        }
+
+        .property-table td {
+            padding: 12px 15px;
+            border: 1px solid #bdc3c7;
+            background: #ffffff;
+            color: #000000; /* Đổi thành màu đen cho dễ nhìn */
+        }
+
+        .property-table tr:nth-child(even) td {
+            background: #f8f9fa;
+        }
+
+        /* Điều khoản */
+        .clauses-section {
+            margin: 25px 0;
+        }
+
+        .clause {
+            margin-bottom: 15px;
+            text-align: justify;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 3px solid #3498db;
+            color: #000000; /* Đổi thành màu đen cho dễ nhìn */
+        }
+
+        .clause-number {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-right: 5px;
+        }
+
+        /* Phần ký tên - SỬA LẠI THÀNH 2 CỘT NGANG */
+        /* Phần ký tên - ĐÃ ĐƯỢC TỐI ƯU */
+        .signature-section {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 2px solid #bdc3c7;
+        }
+
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-top: 20px;
+            gap: 20px; /* Thêm khoảng cách giữa 2 bên */
+        }
+
+        .signature-box {
+            flex: 1; /* Đảm bảo cả 2 box có cùng kích thước */
+            text-align: center;
+            padding: 15px;
+            min-height: 180px; /* Đảm bảo chiều cao bằng nhau */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .signature-title {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-size: 15px;
+            height: 40px; /* Cố định chiều cao tiêu đề */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-note {
+            font-style: italic;
+            color: #7f8c8d;
+            margin: 10px 0;
+            font-size: 13px;
+            min-height: 40px; /* Đảm bảo phần ghi chú có chiều cao bằng nhau */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-line {
+            flex-grow: 1; /* Phần đường ký tự mở rộng để lấp đầy không gian */
+            margin: 20px 0;
+            border-bottom: 1px solid #2c3e50;
+            min-height: 50px; /* Đảm bảo đường ký có chiều cao đủ */
+        }
+
+        .signature-name {
+            font-weight: bold;
+            color: #2c3e50;
+            font-style: italic;
+            margin-top: 10px;
+            height: 30px; /* Cố định chiều cao tên */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-note {
+            font-style: italic;
+            color: #7f8c8d;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+
+        /* Footer */
+        .contract-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            text-align: center;
+            font-style: italic;
+            color: #7f8c8d;
+            border-top: 1px solid #bdc3c7;
+            font-size: 13px;
+        }
+
+        /* Utility classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-bold {
+            font-weight: bold;
+        }
+
+        .text-italic {
+            font-style: italic;
+        }
+
+        .mb-10 {
+            margin-bottom: 10px;
+        }
+
+        .mb-20 {
+            margin-bottom: 20px;
+        }
+
+        .mt-20 {
+            margin-top: 20px;
+        }
+
+        /* Highlight important values */
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .important {
+            background: #fff3cd;
+            padding: 8px 12px;
+            border-left: 4px solid #ffc107;
+            margin: 10px 0;
+            color: #000000; /* Đổi thành màu đen cho dễ nhìn */
+        }
+
+        /* Đảm bảo tất cả chữ đều màu đen dễ đọc */
+        .contract-content,
+        .party-info,
+        .info-value,
+        .clause,
+        .signature-note {
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+<div class="contract-container">
+    <!-- Quốc hiệu -->
+    <div class="national-header">
+        <div class="vietnam">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</div>
+        <div class="slogan">Độc lập - Tự do - Hạnh phúc</div>
+    </div>
+
+    <!-- Header hợp đồng -->
+    <div class="contract-header">
+        <h1 class="contract-title">HỢP ĐỒNG THUÊ, MUA BÁN BẤT ĐỘNG SẢN</h1>
+        <div class="contract-code">Số: ${contractCode}</div>
+    </div>
+
+    <div class="contract-content">
+        <!-- Thông tin cơ bản -->
+        <div class="info-section">
+            <div class="info-item">
+                <span class="info-label">Hôm nay, ngày:</span>
+                <span class="info-value highlight">${contractDate}</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Tại:</span>
+                <span class="info-value">${location}</span>
+            </div>
+        </div>
+
+        <!-- Thông tin các bên -->
+        <div class="info-item text-bold mb-10">Chúng tôi gồm có:</div>
+
+        <!-- Bên A -->
+        <div class="party-section">
+            <div class="party-title">BÊN CHO THUÊ/BÁN (BÊN A)</div>
+            <div class="party-info">
+                <div class="info-item">
+                    <span class="info-label">Ông/Bà:</span>
+                    <span class="info-value highlight">${lessorName}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Số điện thoại:</span>
+                    <span class="info-value">${lessorPhone}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">CMND/CCCD số:</span>
+                    <span class="info-value">${lessorIdNumber}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Ngày cấp:</span>
+                    <span class="info-value">${lessorIdIssueDate}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nơi cấp:</span>
+                    <span class="info-value">${lessorIdIssuePlace}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Địa chỉ:</span>
+                    <span class="info-value">${lessorAddress}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bên B -->
+        <div class="party-section">
+            <div class="party-title">BÊN THUÊ/MUA (BÊN B)</div>
+            <div class="party-info">
+                <div class="info-item">
+                    <span class="info-label">Ông/Bà:</span>
+                    <span class="info-value highlight">${lesseeName}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Số điện thoại:</span>
+                    <span class="info-value">${lesseePhone}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">CMND/CCCD số:</span>
+                    <span class="info-value">${lesseeIdNumber}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Ngày cấp:</span>
+                    <span class="info-value">${lesseeIdIssueDate}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Nơi cấp:</span>
+                    <span class="info-value">${lesseeIdIssuePlace}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Địa chỉ:</span>
+                    <span class="info-value">${lesseeAddress}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thông tin BĐS -->
+        <h2 class="section-title">THÔNG TIN BẤT ĐỘNG SẢN</h2>
+        <table class="property-table">
+            <tr>
+                <th>Loại bất động sản</th>
+                <td>${propertyType}</td>
+            </tr>
+            <tr>
+                <th>Địa chỉ bất động sản</th>
+                <td>${propertyAddress}</td>
+            </tr>
+            <tr>
+                <th>Diện tích (m²)</th>
+                <td>${propertyArea}</td>
+            </tr>
+            <tr>
+                <th>Thông tin phòng</th>
+                <td>${propertyRooms}</td>
+            </tr>
+            <tr>
+                <th>Số giấy chứng nhận</th>
+                <td>${propertyCertificate}</td>
+            </tr>
+            <tr>
+                <th>Giá cho thuê (VND)</th>
+                <td class="highlight">${rentPrice}</td>
+            </tr>
+            <tr>
+                <th>Giá bán (VND)</th>
+                <td class="highlight">${salePrice}</td>
+            </tr>
+            <tr>
+                <th>Thời hạn hợp đồng</th>
+                <td>${contractDuration}</td>
+            </tr>
+        </table>
+
+        <!-- Điều khoản -->
+        <h2 class="section-title">ĐIỀU KHOẢN VÀ ĐIỀU KIỆN</h2>
+        <div class="clauses-section">
+            <div class="clause">
+                <span class="clause-number">Điều 1.</span>
+                Hai bên cam kết cung cấp thông tin trung thực, chịu trách nhiệm trước pháp luật về nội dung hợp đồng.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 2.</span>
+                Bên A đồng ý cho thuê/bán và bên B đồng ý thuê/mua bất động sản theo các điều kiện ghi trong hợp đồng này.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 3.</span>
+                Thời hạn hợp đồng, giá thuê/bán và phương thức thanh toán được hai bên thống nhất rõ ràng.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 4.</span>
+                Bên B có nghĩa vụ bảo quản, sử dụng tài sản đúng mục đích và thanh toán đầy đủ, đúng hạn.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 5.</span>
+                Mọi sửa đổi, bổ sung hợp đồng phải có sự đồng ý bằng văn bản của cả hai bên.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 6.</span>
+                Trong quá trình thực hiện, nếu phát sinh tranh chấp, hai bên ưu tiên thương lượng; nếu không thành, sẽ giải quyết theo pháp luật Việt Nam.
+            </div>
+            <div class="clause">
+                <span class="clause-number">Điều 7.</span>
+                Hợp đồng có hiệu lực kể từ ngày ký và được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ 01 bản.
+            </div>
+        </div>
+
+        <!-- Phần ký tên - ĐÃ SỬA THÀNH 2 CỘT NGANG -->
+        <div class="signature-section">
+            <div class="signature-container">
+                <!-- Bên A - Bên trái -->
+                <div class="signature-box">
+                    <div class="signature-title">BÊN CHO THUÊ/BÁN</div>
+                    <div class="signature-note">(Ký, ghi rõ họ tên và đóng dấu)</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-name">${lessorName}</div>
+                </div>
+
+                <!-- Bên B - Bên phải -->
+                <div class="signature-box">
+                    <div class="signature-title">BÊN THUÊ/MUA</div>
+                    <div class="signature-note">(Ký và ghi rõ họ tên)</div>
+                    <div class="signature-line"></div>
+                    <div class="signature-name">${lesseeName}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="contract-footer">
+        <p>Hợp đồng này được lập thành 02 (hai) bản, mỗi bên giữ 01 (một) bản có giá trị pháp lý như nhau.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -25,17 +25,25 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        List<String> roles = SecurityUtils.getAuthorities();
-        List<String> fullname = Collections.singletonList(SecurityUtils.getPrincipal().getFullName());
-        List<Long> customerId = Collections.singletonList(SecurityUtils.getPrincipal().getId());
+        var principal = SecurityUtils.getPrincipal();
 
-        String json = new ObjectMapper().writeValueAsString(Map.of(
+        List<String> roles = SecurityUtils.getAuthorities();
+        String fullname = principal.getFullName();  // ✅ không bọc list
+        Long id = principal.getId();                // ✅ không bọc list
+        String avatar = principal.getAvatar();
+
+        if (avatar == null) {
+            avatar = "https://cdn.vectorstock.com/i/1000v/92/16/default-profile-picture-avatar-user-icon-vector-46389216.jpg";
+        }
+
+        Map<String, Object> responseData = Map.of(
                 "status", "success",
                 "roles", roles,
-                    "fullname",fullname,
-                "customerid",customerId
-        ));
-        response.getWriter().write(json);
-    }
+                "fullname", fullname,
+                "avatar", avatar,
+                "id", id // 🟢 đổi "customerid" → "id" để thống nhất frontend
+        );
 
+        new ObjectMapper().writeValue(response.getWriter(), responseData);
+    }
 }

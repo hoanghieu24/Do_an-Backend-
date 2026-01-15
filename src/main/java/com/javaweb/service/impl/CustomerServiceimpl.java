@@ -20,6 +20,7 @@ import com.javaweb.repository.CustomerRepository;
 import com.javaweb.repository.TransactionRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.CustomerService;
+import com.javaweb.utils.SecurityUtils;
 import org.apache.commons.lang.StringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,11 +76,12 @@ public class CustomerServiceimpl implements CustomerService {
 //        customerEntity.setStatus((String.valueOf(status.getStatusName())));
         customerEntity.setStatus((String.valueOf(status)));
         customerEntity.setIsActive(1);
+        System.out.println("Saving customer: " + customerEntity);
         customerRepository.save(customerEntity);
-        System.out.println("note : " + customerDTO.getDemand());
-        if (customerDTO.getDemand() != null) {
-            customerConverter.convertPostAndEditCustomer(customerDTO, customerEntity);
-        }
+        System.out.println("Saved OK!");
+//        if (customerDTO.getDemand() != null) {
+//            customerConverter.convertPostAndEditCustomer(customerDTO, customerEntity);
+//        }
     }
 
 
@@ -103,6 +105,30 @@ public class CustomerServiceimpl implements CustomerService {
         CustomerSearchBuilder customerSearchBuilder = customerSearchBuilderConveter.toCustomerSearchBuilder(param, statuses);
         System.out.println("id = " + customerSearchBuilder.getStaffId());
         List<CustomerEntity> customerEntities = customerRepository.findAll(customerSearchBuilder);
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        boolean isAdmin = SecurityUtils.isAdmin();
+        boolean isUsers = SecurityUtils.isUser();
+
+
+        if (currentUserId == null) {
+            customerEntities = customerRepository.findAll(customerSearchBuilder);
+        }
+
+        else if (isAdmin) {
+            customerEntities = customerRepository.findAll(customerSearchBuilder);
+        }
+
+        else if (isUsers){
+            customerEntities = customerRepository.findAll(customerSearchBuilder);
+        }
+
+        else {
+            customerEntities = customerRepository.findByStaffAndCondition(
+                    currentUserId,
+                    customerSearchBuilder
+            );
+        }
         List<CustomerResponse> customerResponses = new ArrayList<>();
         for (CustomerEntity customer : customerEntities) {
             String staff = customer.getBuildingEntities().stream()
@@ -126,6 +152,8 @@ public class CustomerServiceimpl implements CustomerService {
                     .build();
             customerResponses.add(customerResponse);
         }
+
+
         return customerResponses;
     }
 
@@ -286,5 +314,6 @@ public class CustomerServiceimpl implements CustomerService {
         responseDTO.setMessage("Lưu nhân viên thành công");
         return responseDTO;
     }
+
 
 }

@@ -20,13 +20,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.HttpStatus;
 import java.util.HashMap;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
+@CrossOrigin(origins = "http://localhost:8080")
 @RestController // THÊM controller REST tách biệt với các trang HTML
-@RequestMapping("/api")
-@Controller(value = "usersControllerOfAdmin")
+@RequestMapping("/api/usesr")
+
 public class UserController {
 
 	@Autowired
@@ -37,6 +39,13 @@ public class UserController {
 
 	@Autowired
 	private MessageUtils messageUtil;
+
+	@GetMapping("/new")
+	public ResponseEntity<List<UserDTO>> getAllUsers() {
+		List<UserDTO> users = userService.findAll();
+		System.out.println(">>> getAllUsers called");
+		return ResponseEntity.ok(users);
+	}
 
 	@RequestMapping(value = "/admin/user-list", method = RequestMethod.GET)
 	public ModelAndView getNews(@ModelAttribute(SystemConstant.MODEL) UserDTO model, HttpServletRequest request) {

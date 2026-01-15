@@ -13,7 +13,7 @@ public class CustomerSearchBuilderConveter {
     public CustomerSearchBuilder toCustomerSearchBuilder(Map<String, Object> param, String status) {
 
         CustomerSearchBuilder customerSearchBuilder = new CustomerSearchBuilder.Builder()
-                .setFullName(MapUntil.getObject(param, "fullname", String.class))
+                .setFullName(MapUntil.getObject(param, "fullName", String.class))
                 .setEmail(MapUntil.getObject(param, "email", String.class))
                 .setNote(MapUntil.getObject(param, "note", String.class))
                 .setPhone(MapUntil.getObject(param, "phone", String.class))

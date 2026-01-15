@@ -1,6 +1,8 @@
 package com.javaweb.api.admin;
 
+import com.javaweb.exception.MyException;
 import com.javaweb.model.dto.*;
+import com.javaweb.model.response.CustomerResponse;
 import com.javaweb.model.response.ResponseDTO;
 import com.javaweb.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,7 @@ import javax.validation.Valid;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -25,24 +28,44 @@ public class CustomerAPI {
     @Autowired
     private CustomerService customerService;
 
+    @GetMapping
+    public ResponseEntity<List<CustomerResponse>> getAllUsers(
+            @RequestParam Map<String, Object> param,
+            @RequestParam(required = false) String statuses) {
+
+        System.out.println(">>> getAllUsers called với param = " + param);
+        List<CustomerResponse> users = customerService.findAll(param, statuses);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<CustomerDTO> getCustomerById(@PathVariable Long id) {
+        CustomerDTO customer = customerService.getCustomerById(id);
+        return ResponseEntity.ok(customer);
+    }
+
+
+
     @PostMapping
-    private ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customerDTO , BindingResult bindingResult) {
+    private ResponseEntity<?> createCustomer(@RequestBody CustomerDTO customerDTO , BindingResult bindingResult) throws MyException {
         try {
-            if(bindingResult.hasErrors()){
-                List<String > errors = bindingResult.getFieldErrors().stream()
-                        .map(FieldError::getDefaultMessage).collect(Collectors.toList());
+            if (bindingResult.hasErrors()) {
+                List<String> errors = bindingResult.getFieldErrors().stream()
+                        .map(FieldError::getDefaultMessage)
+                        .collect(Collectors.toList());
                 ResponseDTO responseDTO = new ResponseDTO();
                 responseDTO.setMessage("Faild");
                 responseDTO.setDetail(errors);
                 return ResponseEntity.badRequest().body(responseDTO);
             }
             customerService.postAll(customerDTO);
-        }
-        catch (Exception e) {
+            return ResponseEntity.ok("Created customer successfully!");
+        } catch (Exception e) {
             e.printStackTrace();
+            throw e; // 👈 Đừng nuốt exception!
         }
-        return ResponseEntity.ok("");
     }
+
     @PostMapping("/nologin")
     private ResponseEntity<?> createCustomers(@RequestBody @Valid CustomerDTO customerDTO, BindingResult bindingResult) {
         ResponseDTO responseDTO = new ResponseDTO();

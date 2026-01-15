@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.*;
 @Entity
 @Table(name = "customer")
@@ -51,8 +52,12 @@ public class CustomerEntity extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "staffid", nullable = false))
     private List<UserEntity> users = new ArrayList<>();
 
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<FavouriteEntity> favourites = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ContractEntity> contracts = new ArrayList<>();
+
+
 
 
 //    @ManyToOne(fetch = FetchType.LAZY)

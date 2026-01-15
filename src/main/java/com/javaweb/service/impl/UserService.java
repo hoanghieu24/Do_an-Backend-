@@ -3,6 +3,7 @@ package com.javaweb.service.impl;
 import com.javaweb.constant.SystemConstant;
 import com.javaweb.converter.UserConverter;
 import com.javaweb.entity.CustomerEntity;
+import com.javaweb.entity.SellerRequestEntity;
 import com.javaweb.model.dto.CustomerDTO;
 import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
@@ -10,16 +11,25 @@ import com.javaweb.entity.RoleEntity;
 import com.javaweb.entity.UserEntity;
 import com.javaweb.exception.MyException;
 import com.javaweb.repository.RoleRepository;
+import com.javaweb.repository.SellerRequestRepository;
 import com.javaweb.repository.UserRepository;
 import com.javaweb.service.IUserService;
 import org.apache.commons.lang.StringUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -38,7 +48,10 @@ public class UserService implements IUserService {
 
     @Autowired
     private UserConverter userConverter;
-
+    @Autowired
+    private ModelMapper modelMapper;
+    @Autowired
+    private SellerRequestRepository sellerRequestRepository;
 
 
     @Override
@@ -123,15 +136,33 @@ public class UserService implements IUserService {
     @Override
     @Transactional
     public UserDTO insert(UserDTO newUser) {
+
+        // 1. Lấy role
         RoleEntity role = roleRepository.findOneByCode(newUser.getRoleCode());
+
+        // 2. Convert DTO → Entity
         UserEntity userEntity = userConverter.convertToEntity(newUser);
-        userEntity.setRoles(Stream.of(role).collect(Collectors.toList()));
+        userEntity.setRoles(List.of(role));
         userEntity.setStatus(1);
-        String En = passwordEncoder.encode(newUser.getPassword());
-        String notEn = (newUser.getPassword());
         userEntity.setPassword(passwordEncoder.encode(newUser.getPassword()));
-        return userConverter.convertToDto(userRepository.save(userEntity));
+
+        // 3. LƯU USER TRƯỚC để có ID
+        userEntity = userRepository.save(userEntity);
+
+        // 4. Nếu user tick "đăng ký làm người bán"
+        if (Boolean.TRUE.equals(newUser.getRegisterSeller())) {
+            SellerRequestEntity request = new SellerRequestEntity();
+            request.setUser(userEntity);
+            request.setStatus("PENDING");
+            request.setCreatedDate(LocalDateTime.now());
+            sellerRequestRepository.save(request);
+        }
+
+
+        // 5. Trả về DTO
+        return userConverter.convertToDto(userEntity);
     }
+
 
     @Override
     @Transactional
@@ -201,5 +232,51 @@ public class UserService implements IUserService {
 
         return result;
     }
+
+    @Override
+    public List<UserDTO> findAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(userConverter::convertToDto)  // nếu có converter
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public UserDTO findById(Long id) throws MyException {
+        UserEntity entity = userRepository.findById(id)
+                .orElseThrow(() -> new MyException("Không tìm thấy người dùng"));
+        return modelMapper.map(entity, UserDTO.class);
+    }
+
+    @Override
+    public List<UserDTO> searchUsers(String userName, String fullName, String email) {
+        return userRepository.searchUsers(userName, fullName, email)
+                .stream()
+                .map(userConverter::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public String uploadAvatar(long id, MultipartFile file) throws MyException, IOException {
+        UserEntity user = userRepository.findById(id)
+                .orElseThrow(() -> new MyException("Không tìm thấy người dùng"));
+
+        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        Path uploadPath = Paths.get("uploads/avatars");
+
+        if (!Files.exists(uploadPath)) Files.createDirectories(uploadPath);
+
+        Path filePath = uploadPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        String fileUrl = "/uploads/avatars/" + fileName;
+        user.setAvatar(fileUrl);
+        System.out.println(fileUrl);
+        userRepository.save(user);
+
+        return fileUrl;
+    }
+
+
 
 }

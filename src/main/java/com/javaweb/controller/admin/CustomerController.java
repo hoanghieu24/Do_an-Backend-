@@ -100,7 +100,7 @@ public class CustomerController {
             }
         } catch (IllegalArgumentException e) {
             view.addObject("errorMessage", e.getMessage());
-            view.addObject("showErrorModal", true);
+            view.addObject("showErrorModal", Optional.of(true));
         }
         view.addObject("status", Status.type());
         return view;
@@ -121,7 +121,7 @@ public class CustomerController {
         CustomerDTO customerDTO = customerService.getCustomerById(id);
         TransactionDTO transactionDTO = transactionService.getTranById(id);
         ModelAndView view = new ModelAndView("admin/staff/editlist");
-        CustomerEntity customerEntity = customerRepository.findByIdAndIsActive(id, 1);
+        CustomerEntity customerEntity = customerRepository.findByIdAndIsActive(id, Integer.valueOf(1));
 
         if(SecurityUtils.getAuthorities().contains("ROLE_STAFF")){
             UserEntity userEntity = userRepository.findById(SecurityUtils.getPrincipal().getId()).get();

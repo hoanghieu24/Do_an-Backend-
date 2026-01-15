@@ -1,11 +1,11 @@
 package com.javaweb.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "rentarea")
 public class RentareaEntity  extends BaseEntity {

@@ -8,6 +8,7 @@ import com.javaweb.model.response.BuildingResponse;
 import com.javaweb.model.response.ResponseDTO;
 import org.springframework.data.domain.Pageable;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +17,13 @@ public interface BuildingService {
     void postAll(BuildingDTO buildingDTO);
     void putAll(BuildingDTO buildingDTO);
     void deleteAll(List<Long> ids);
-    BuildingDTO getBuildingById(Long id);
+    BuildingDTO getBuildingById(Long id) throws AccessDeniedException;
     Object loadStaff(Long ids);
     Object loadProduct(Long ids);
     Object saveStaff(AssigmentBuildingDTO assigmentBuildingDTO);
     int countTotalItems();
     List<BuildingDTO> getBuilding(String searchValue, Pageable pageable);
+    BuildingDTO getBuildingFavouriteById(Long id) throws AccessDeniedException;
+
 
 }

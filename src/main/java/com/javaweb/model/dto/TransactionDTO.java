@@ -2,6 +2,7 @@ package com.javaweb.model.dto;
 
 
 import com.javaweb.entity.CustomerEntity;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

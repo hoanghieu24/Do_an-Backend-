@@ -27,10 +27,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.nio.file.AccessDeniedException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @CrossOrigin(origins = "http://localhost:8080")  // Giúp Vue.js có thể gọi API từ localhost
 @RestController  // Sử dụng @RestController để trả về JSON
@@ -106,7 +109,7 @@ public class BuildingController {
     }
 
     @GetMapping("/admin/building-edit-{id}")
-    public ModelAndView buildingEdit(@PathVariable Long id) {
+    public ModelAndView buildingEdit(@PathVariable Long id) throws AccessDeniedException {
         BuildingDTO buildingDTO = buildingService.getBuildingById(id);
         ModelAndView view = new ModelAndView("admin/building/editlist");
         view.addObject("district", districtCode.type());
@@ -117,7 +120,7 @@ public class BuildingController {
     }
 
     @GetMapping("/admin/building-list-{id}")
-    public ModelAndView buildingDelete(@PathVariable Long id) {
+    public ModelAndView buildingDelete(@PathVariable Long id) throws AccessDeniedException {
         BuildingDTO buildingDTO = buildingService.getBuildingById(id); // Lấy thông tin tòa nhà từ service
         ModelAndView view = new ModelAndView("admin/building/list");
         view.addObject("district", districtCode.type());
@@ -136,8 +139,18 @@ private void initMessageResponse(ModelAndView mav, HttpServletRequest request) {
 }
 
     @GetMapping("/{id}")
-    public ResponseEntity<BuildingDTO> getBuildingById(@PathVariable Long id) {
+    public ResponseEntity<BuildingDTO> getBuildingById(@PathVariable Long id) throws AccessDeniedException {
         BuildingDTO building = buildingService.getBuildingById(id);
+        if (building != null) {
+            return ResponseEntity.ok(building);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{id}/favourite")
+    public ResponseEntity<BuildingDTO> getBuildingFavouriteById(@PathVariable Long id) throws AccessDeniedException {
+        BuildingDTO building = buildingService.getBuildingFavouriteById(id);
         if (building != null) {
             return ResponseEntity.ok(building);
         } else {
@@ -164,6 +177,14 @@ private void initMessageResponse(ModelAndView mav, HttpServletRequest request) {
         return ResponseEntity.ok(iUserService.liststaff()); // hoặc dữ liệu nào bạn cần
     }
 
+    @Controller
+    public class FrontendController {
+
+        @RequestMapping(value = { "/", "/{path:[^\\.]*}" })
+        public String forward() {
+            return "forward:/index.html";
+        }
+    }
 
 
 

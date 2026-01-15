@@ -1,5 +1,8 @@
 package com.javaweb.model.dto;
 
+import lombok.Data;
+
+@Data
 public class RoleDTO extends AbstractDTO<RoleDTO> {
 
 	private static final long serialVersionUID = 5830885581031027382L;

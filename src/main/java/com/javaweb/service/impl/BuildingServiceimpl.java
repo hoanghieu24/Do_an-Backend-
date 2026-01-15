@@ -2,7 +2,11 @@ package com.javaweb.service.impl;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import com.javaweb.builder.BuildingSearchBuilder;
@@ -16,12 +20,10 @@ import com.javaweb.model.dto.BuildingDTO;
 import com.javaweb.model.response.BuildingResponse;
 import com.javaweb.model.response.ResponseDTO;
 import com.javaweb.model.response.StaffResponseDto;
-import com.javaweb.repository.BuildingRepository;
-import com.javaweb.repository.RentareaRepository;
-import com.javaweb.repository.TransactionRepository;
-import com.javaweb.repository.UserRepository;
+import com.javaweb.repository.*;
 import com.javaweb.service.BuildingService;
 import com.javaweb.utils.DistrictCode;
+import com.javaweb.utils.SecurityUtils;
 import com.javaweb.utils.UploadFileUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,50 +60,85 @@ public class BuildingServiceimpl implements BuildingService {
     private UploadFileUtils uploadFileUtils;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private AssignmentBuildingRepository assignmentBuildingRepository;
 
     // tim
     @Override
     public List<BuildingResponse> findAll(Map<String, Object> param, List<String> typeCode) {
-        // ✅ Xử lý district từ "QUAN_1" → "Quận 1"
+
         String districtKey = (String) param.get("district");
         if (districtKey != null && !districtKey.isEmpty()) {
             try {
                 districtCode districtEnum = districtCode.valueOf(districtKey);
-                String districtValue = districtEnum.getDistrictName(); // Ví dụ: "Quận 1"
-                param.put("district", districtValue);
+                param.put("district", districtEnum.name());
             } catch (IllegalArgumentException e) {
-                param.remove("district"); // Tránh crash nếu key không đúng
+                param.remove("district");
             }
-            System.out.println("🎯 PARAM DISTRICT: " + param.get("district"));
-//            System.out.println("🎯 Builder: " + buildingSearchBuilder);
-
         }
 
-        BuildingSearchBuilder buildingSearchBuilder = builderConverter.toBuildingSearchBuilder(param, typeCode);
-        List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
+        BuildingSearchBuilder buildingSearchBuilder =
+                builderConverter.toBuildingSearchBuilder(param, typeCode);
+
+        Long currentUserId = SecurityUtils.getCurrentUserId();
+        boolean isAdmin = SecurityUtils.isAdmin();
+        boolean isUsers = SecurityUtils.isUser();
+
+        List<BuildingEntity> buildingEntities;
+
+
+        if (currentUserId == null) {
+            buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
+        }
+
+        else if (isAdmin) {
+            buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
+        }
+
+        else if (isUsers){
+            buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
+        }
+
+        else {
+            buildingEntities = buildingRepository.findByStaffAndCondition(
+                    currentUserId,
+                    buildingSearchBuilder
+            );
+        }
 
         List<BuildingResponse> buildingResponses = new ArrayList<>();
         for (BuildingEntity be : buildingEntities) {
             buildingResponses.add(buildingConverter.convertoResponse(be));
         }
+
         return buildingResponses;
     }
+
 
 
     // thêm toà nhà
     @Override
     public void postAll(BuildingDTO buildingDTO) {
         BuildingEntity buildingEntity = modelMapper.map(buildingDTO, BuildingEntity.class);
-            districtCode districtCodes = districtCode.valueOf(String.valueOf(buildingDTO.getDistrict()));
-            buildingEntity.setDistrictId(String.valueOf(districtCodes));
+
+        districtCode districtCodes = districtCode.valueOf(String.valueOf(buildingDTO.getDistrict()));
+        buildingEntity.setDistrictId(String.valueOf(districtCodes));
+
+        // 🔥 SET STAFF
+        if (buildingDTO.getStaffIds() != null && !buildingDTO.getStaffIds().isEmpty()) {
+            List<UserEntity> staffs = userRepository.findAllById(buildingDTO.getStaffIds());
+            buildingEntity.setUsers(staffs);
+        }
 
         saveThumbnail(buildingDTO, buildingEntity);
+
         buildingRepository.save(buildingEntity);
+
         if (buildingDTO.getRentareaEntity_List() != null && !buildingDTO.getRentareaEntity_List().isEmpty()) {
             buildingConverter.convertPostAndEditRentAreas(buildingDTO, buildingEntity);
         }
-
     }
+
 
     // sửa toà nhà
     @Override
@@ -150,59 +187,39 @@ public class BuildingServiceimpl implements BuildingService {
 
 
 // giao
-    @Override
-    public Object loadStaff(Long buildingId) {
-        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1, "STAFF");
-        Optional<BuildingEntity> buildingEntityOpt = buildingRepository.findById(buildingId);
-        if (!buildingEntityOpt.isPresent()) {
-            throw new RuntimeException("Toà nhà không tồn tại !!");
-        }
-        BuildingEntity buildingEntity = buildingEntityOpt.get();
-        List<StaffResponseDto> staffResponseDtos = new ArrayList<>();
-        for (UserEntity userEntity : userEntities) {
-            StaffResponseDto staffResponseDto = new StaffResponseDto();
-            staffResponseDto.setStaffId(userEntity.getId());
-            staffResponseDto.setUserName(userEntity.getUserName());
-            boolean isAssigned = buildingEntity.getUsers().stream()
-                    .anyMatch(assignedUser -> assignedUser.getId().equals(userEntity.getId()));
-            staffResponseDto.setChecked(isAssigned ? "checked" : "unchecked");
-            staffResponseDtos.add(staffResponseDto);
-        }
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setData(staffResponseDtos);
-        responseDTO.setMessage("OKEEE");
+@Override
+public Object loadStaff(Long buildingId) {
 
-        return responseDTO;
+    List<UserEntity> staffs = userRepository.findByStatusAndRoles_Code(1, "STAFF");
+
+    List<AssignmentBuildingEntity> assigned =
+            assignmentBuildingRepository.findByBuildingId(buildingId);
+
+    Set<Long> assignedStaffIds = assigned.stream()
+            .map(a -> a.getStaff().getId())
+            .collect(Collectors.toSet());
+
+    List<StaffResponseDto> result = new ArrayList<>();
+
+    for (UserEntity staff : staffs) {
+        StaffResponseDto dto = new StaffResponseDto();
+        dto.setStaffId(staff.getId());
+        dto.setUserName(staff.getUserName());
+        dto.setChecked(assignedStaffIds.contains(staff.getId()) ? "checked" : "");
+        result.add(dto);
     }
 
+    ResponseDTO responseDTO = new ResponseDTO();
+    responseDTO.setData(result);
+    responseDTO.setMessage("OK");
+
+    return responseDTO;
+}
+
     @Override
-    public Object loadProduct(Long buildingId) {
-        List<UserEntity> userEntities = userRepository.findByStatusAndRoles_Code(1, "STAFF");
-        Optional<BuildingEntity> buildingEntityOpt = buildingRepository.findById(buildingId);
-        if (!buildingEntityOpt.isPresent()) {
-            throw new RuntimeException("Toà nhà không tồn tại !!");
-        }
-        BuildingEntity buildingEntity = buildingEntityOpt.get();
-        List<StaffResponseDto> staffResponseDtos = new ArrayList<>();
-        for (UserEntity userEntity : userEntities) {
-            StaffResponseDto staffResponseDto = new StaffResponseDto();
-            staffResponseDto.setStaffId(userEntity.getId());
-            staffResponseDto.setUserName(userEntity.getUserName());
-            boolean isAssigned = buildingEntity.getUsers().stream()
-                    .anyMatch(assignedUser -> assignedUser.getId().equals(userEntity.getId()));
-            staffResponseDto.setChecked(isAssigned ? "checked" : "unchecked");
-            staffResponseDtos.add(staffResponseDto);
-        }
-        ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setData(staffResponseDtos);
-        responseDTO.setMessage("OKEEE");
-
-        return responseDTO;
+    public Object loadProduct(Long ids) {
+        return null;
     }
-
-
-
-
 
 
     @Override
@@ -241,28 +258,71 @@ public class BuildingServiceimpl implements BuildingService {
     }
 
     private void saveThumbnail(BuildingDTO buildingDTO, BuildingEntity buildingEntity) {
-
-        String path = "/img/building/" + buildingDTO.getImageName();
-
-        if (buildingDTO.getImageBase64() != null) {
-            if (buildingEntity.getImage() != null) {
-                if (!path.equals(buildingEntity.getImage())) {
-                    File file = new File(SystemConstant.Path_Image + buildingEntity.getImage());
-                    file.delete();
-                }
+        try {
+            if (buildingDTO.getImageBase64() == null || buildingDTO.getImageBase64().isEmpty()) {
+                return;
             }
+
+            String fileName = buildingDTO.getImageName();
+            String relativePath = "/building/" + fileName;
+            String fullPath = SystemConstant.Path_Image + "\\" + relativePath;
+
+            // Nếu có ảnh cũ thì xóa
+            if (buildingEntity.getImage() != null) {
+                File oldFile = new File(SystemConstant.Path_Image + "\\" + buildingEntity.getImage());
+                if (oldFile.exists()) oldFile.delete();
+            }
+
+            // Cắt header base64
             String base64 = buildingDTO.getImageBase64();
-            if(base64.contains(",")){
+            if (base64.contains(",")) {
                 base64 = base64.split(",")[1];
             }
-            byte[] bytes = Base64.decodeBase64(buildingDTO.getImageBase64().getBytes(StandardCharsets.UTF_8));
-            uploadFileUtils.writeOrUpdate(path, bytes);
-            buildingEntity.setImage(path);
+
+            byte[] bytes = Base64.decodeBase64(base64);
+
+            // Tạo thư mục nếu chưa tồn tại
+            File folder = new File(SystemConstant.Path_Image + "\\building");
+            if (!folder.exists()) folder.mkdirs();
+
+            // Ghi file
+            Files.write(Paths.get(fullPath), bytes);
+
+            buildingEntity.setImage(relativePath);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+
     @Override
-    public BuildingDTO getBuildingById(Long id) {
-        BuildingEntity buildingEntity = buildingRepository.findById(id).orElse(null);
+    public BuildingDTO getBuildingById(Long id) throws AccessDeniedException {
+
+        Long staffId = SecurityUtils.getCurrentUserId();
+
+        if (!SecurityUtils.isAdmin() ) {
+            boolean ok = buildingRepository.isStaffOwner(staffId, id);
+            if (!ok) {
+                throw new AccessDeniedException("🚫 Không có quyền truy cập toà nhà này");
+            }
+        }
+
+        BuildingEntity buildingEntity = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Toà nhà không tồn tại"));
+
         return buildingConverter.convertToDTO(buildingEntity);
     }
+
+    @Override
+    public BuildingDTO getBuildingFavouriteById(Long id) throws AccessDeniedException {
+
+        Long staffId = SecurityUtils.getCurrentUserId();
+
+        BuildingEntity buildingEntity = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Toà nhà không tồn tại"));
+
+        return buildingConverter.convertToDTO(buildingEntity);
+    }
+
 }

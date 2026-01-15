@@ -2,6 +2,7 @@ package com.javaweb.model.dto;
 
 
 import com.javaweb.entity.TransactionEntity;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import javax.validation.constraints.NotBlank;
@@ -10,8 +11,7 @@ import javax.validation.Valid;
 
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 public class CustomerDTO extends AbstractDTO{
     @NotBlank(message = "fullname can not be blank !! ")
     private String fullName;
@@ -22,6 +22,7 @@ public class CustomerDTO extends AbstractDTO{
     private String demand;
     private String status;
     private String companyName;
+    private String avatar;
     private List<Long> transactionIds;
 
 

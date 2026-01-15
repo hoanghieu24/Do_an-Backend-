@@ -1,6 +1,8 @@
 package com.javaweb.entity;
 
+import lombok.Data;
 import lombok.Getter;
+import lombok.*;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -8,8 +10,10 @@ import java.util.*;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
+@EqualsAndHashCode(callSuper = true)
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "building")
 public class BuildingEntity extends BaseEntity {
@@ -115,6 +119,10 @@ public class BuildingEntity extends BaseEntity {
 
     @OneToMany(mappedBy = "building", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FavouriteEntity> favourites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<VrSceneEntity> vrScenes;
+
 
 }
 

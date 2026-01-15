@@ -3,6 +3,7 @@ package com.javaweb.model.dto;
 import com.javaweb.entity.RentareaEntity;
 import com.javaweb.enums.buildingType;
 import com.javaweb.enums.districtCode;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,9 +16,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 
-
-@Getter
-@Setter
+@Data
 public class BuildingDTO extends AbstractDTO {
 
     @NotBlank(message = "Tên Toà nhà không được để rỗng !!")
@@ -57,4 +56,5 @@ public class BuildingDTO extends AbstractDTO {
         }
         return null;
     }
+    private List<Long> staffIds;
 }

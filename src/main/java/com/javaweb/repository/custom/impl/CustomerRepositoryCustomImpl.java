@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,47 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
         System.out.println(sql);
         Query query = entityManager.createNativeQuery(sql.toString(), CustomerEntity.class);
 
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<CustomerEntity> findByStaffAndCondition(Long staffId, CustomerSearchBuilder builder) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT DISTINCT c
+            FROM CustomerEntity c
+            JOIN c.users u
+            WHERE u.id = :staffId
+        """);
+
+        if (builder.getFullName() != null) {
+            sql.append(" AND c.fullName LIKE :fullName");
+        }
+        if (builder.getPhone() != null) {
+            sql.append(" AND c.phone LIKE :phone");
+        }
+        if (builder.getEmail() != null) {
+            sql.append(" AND c.email LIKE :email");
+        }
+        if (builder.getStatus() != null) {
+            sql.append(" AND c.status = :status");
+        }
+
+        TypedQuery<CustomerEntity> query = entityManager.createQuery(sql.toString(), CustomerEntity.class);
+        query.setParameter("staffId", staffId);
+
+        if (builder.getFullName() != null) {
+            query.setParameter("fullName", "%" + builder.getFullName() + "%");
+        }
+        if (builder.getPhone() != null) {
+            query.setParameter("phone", "%" + builder.getPhone() + "%");
+        }
+        if (builder.getEmail() != null) {
+            query.setParameter("email", "%" + builder.getEmail() + "%");
+        }
+        if (builder.getStatus() != null) {
+            query.setParameter("status", builder.getStatus());
+        }
 
         return query.getResultList();
     }
@@ -88,7 +130,9 @@ public class CustomerRepositoryCustomImpl implements CustomerRepositoryCustom {
     public int countTotalItem() {
         String sql = buildQueryFilter();
         Query query = entityManager.createNativeQuery(sql.toString());
+        System.out.println("🔍 SQL Query: " + sql.toString());
         return query.getResultList().size();
+
     }
 
     @Override

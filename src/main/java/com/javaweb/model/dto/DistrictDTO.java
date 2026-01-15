@@ -1,5 +1,8 @@
 package com.javaweb.model.dto;
 
+import lombok.Data;
+
+@Data
 public class DistrictDTO {
     private Long[] Buildingids;
 

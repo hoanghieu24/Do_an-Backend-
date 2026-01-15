@@ -18,7 +18,7 @@ public class FavouriteAPI {
     // ✅ 1. Hiển thị danh sách yêu thích của một user
     @GetMapping("/favorites/{userId}")
     public ResponseEntity<List<FavouriteDTO>> getFavorites(@PathVariable Long userId) {
-        return ResponseEntity.ok(favouriteService.getFavoritesByCustomer(userId));
+        return ResponseEntity.ok(favouriteService.getFavoritesByUsers(userId));
     }
 
     // ✅ 2. Thêm một toà nhà vào danh sách yêu thích

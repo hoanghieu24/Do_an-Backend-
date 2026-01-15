@@ -37,8 +37,9 @@ public class CustomUserDetailService implements UserDetailsService {
 
         System.out.println("👉 Password trong DB: " + userDTO.getPassword());
         System.out.println("👉 Các quyền (roles): " + userDTO.getRoles());
-        System.out.println("👉 Tên của bạn là : " + userDTO.getFullName());
-        System.out.println("👉 Tên của bạn là : " + userDTO.getId());
+        System.out.println("👉 Họ tên: " + userDTO.getFullName());
+        System.out.println("👉 ID: " + userDTO.getId());
+        System.out.println("👉 Avatar: " + userDTO.getAvatar());
 
         if (userDTO.getRoles() == null || userDTO.getRoles().isEmpty()) {
             System.out.println("⚠️ User không có quyền nào được gán");
@@ -57,15 +58,20 @@ public class CustomUserDetailService implements UserDetailsService {
                 authorities
         );
 
-
         myUserDetail.setId(userDTO.getId());
         myUserDetail.setFullName(userDTO.getFullName());
 
+        // ✅ Cho phép avatar null, dùng Optional để tránh lỗi
+        myUserDetail.setAvatar(
+                userDTO.getAvatar() != null ? userDTO.getAvatar() : null
+        );
 
+        // Nếu ông muốn có ảnh mặc định khi avatar null (gợi ý)
+        // myUserDetail.setAvatar(
+        //         userDTO.getAvatar() != null ? userDTO.getAvatar() : "/img/default_avatar.png"
+        // );
 
-
-        BeanUtils.copyProperties(userDTO, myUserDetail);
         return myUserDetail;
     }
-
 }
+

@@ -51,6 +51,7 @@ public class BuildingAPI {
         buildingService.deleteAll(ids);
     }
 
+
     @GetMapping("/staffs/{ids}")
     private Object loadStaff(@PathVariable Long ids){
         return buildingService.loadStaff(ids);

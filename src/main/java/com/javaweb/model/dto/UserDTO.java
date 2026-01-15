@@ -1,5 +1,6 @@
 package com.javaweb.model.dto;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,17 +9,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Getter
-@Setter
+@Data
 public class UserDTO extends AbstractDTO {
     private String userName;
     private String fullName;
     private String password;
+    private String email;
+    private String phone;
     private Integer status;
     private List<RoleDTO> roles = new ArrayList<>();
     private String roleName;
     private String roleCode;
     private Map<String,String> roleDTOs = new HashMap<>();
-
+    private String avatar;
+    private Boolean registerSeller;
 
 }

@@ -4,7 +4,9 @@ import com.javaweb.model.dto.PasswordDTO;
 import com.javaweb.model.dto.UserDTO;
 import com.javaweb.exception.MyException;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +24,10 @@ public interface IUserService {
     void delete(long[] ids) throws MyException;
 //    Map<Long,String> liststaff();
     List<UserDTO> liststaff();
+    List<UserDTO> findAll();
+    UserDTO findById(Long id) throws MyException;
+    List<UserDTO> searchUsers(String userName, String fullName, String email);
+    String uploadAvatar(long id, MultipartFile file) throws MyException , IOException;;
 
     //    ResponseDTO listStaff(Long buildingId);
 //    List<UserDTO> getAllUsers(Pageable pageable);

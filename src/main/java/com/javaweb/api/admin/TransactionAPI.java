@@ -41,5 +41,15 @@ public class TransactionAPI {
         return ResponseEntity.ok("Cập nhật ghi chú thành công");
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TransactionDTO> getTransactionById(@PathVariable Long id) {
+        try {
+            TransactionDTO transaction = transactionService.getTranById(id);
+            return ResponseEntity.ok(transaction);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
 
 }

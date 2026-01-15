@@ -1,5 +1,6 @@
 package com.javaweb.entity;
 
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,8 +10,8 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "transaction")
-@Getter
 @Setter
+@Getter
 public class TransactionEntity extends BaseEntity {
 
     @Column(name = "code")

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <title>Virtual Tour - Dynamic by Building ID</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        #panorama {
+            width: 100%;
+            height: 100%;
+        }
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0));
+            color: white;
+            padding: 20px 30px;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #logo {
+            font-size: 28px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        #logo i {
+            margin-right: 12px;
+            color: #4CAF50;
+            font-size: 32px;
+        }
+        #infoBox {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px 30px;
+            border-radius: 25px;
+            z-index: 10;
+            transition: opacity 0.5s, transform 0.5s;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            text-align: center;
+            max-width: 85%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        #infoBox h2 {
+            margin: 0 0 10px;
+            color: #4CAF50;
+            font-size: 24px;
+        }
+        #infoBox p {
+            font-size: 16px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        #navigation {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 25px;
+            padding: 12px 18px;
+            z-index: 10;
+            display: flex;
+            gap: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+        .nav-btn {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 22px;
+        }
+        .nav-btn:hover {
+            background: rgba(76,175,80,0.8);
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(76,175,80,0.5);
+        }
+        #sceneSelector {
+            position: absolute;
+            top: 90px;
+            right: 25px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+            min-width: 250px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        #sceneSelector h3 {
+            margin: 0 0 15px;
+            color: #4CAF50;
+            font-size: 18px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #sceneSelector h3 i {
+            margin-right: 10px;
+        }
+        .scene-item {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            font-size: 16px;
+        }
+        .scene-item i {
+            margin-right: 12px;
+            color: #4CAF50;
+        }
+        .scene-item.active {
+            background: rgba(76,175,80,0.6);
+            transform: scale(1.02);
+        }
+        .scene-item:hover {
+            background: rgba(255,255,255,0.15);
+        }
+        #loading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: white;
+        }
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to {transform: rotate(360deg);}
+        }
+        #loading p {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        #controls {
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        #controls:hover {
+            background: rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div id="loading">
+    <div class="spinner"></div>
+    <p>Đang tải Virtual Tour...</p>
+</div>
+
+<div id="panorama"></div>
+
+<div id="header">
+    <div id="logo"><i class="fas fa-home"></i><span>Virtual Home Tour</span></div>
+    <div id="controls"><i class="fas fa-expand" id="fullscreenBtn"></i></div>
+</div>
+
+<div id="infoBox"><h2>Đang tải...</h2><p>Xin chờ trong giây lát</p></div>
+<div id="navigation">
+    <button class="nav-btn" id="zoomIn"><i class="fas fa-search-plus"></i></button>
+    <button class="nav-btn" id="zoomOut"><i class="fas fa-search-minus"></i></button>
+    <button class="nav-btn" id="resetView"><i class="fas fa-crosshairs"></i></button>
+    <button class="nav-btn" id="autoRotate"><i class="fas fa-sync"></i></button>
+</div>
+
+<div id="sceneSelector">
+    <h3><i class="fas fa-map-marker-alt"></i> Chọn phòng</h3>
+    <div id="sceneList"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const buildingId = params.get('buildingId');
+    const infoBox = document.getElementById('infoBox');
+    const sceneList = document.getElementById('sceneList');
+    let viewer;
+
+    if (!buildingId) {
+        alert("❌ Thiếu buildingId trên URL!");
+    } else {
+        fetch(`/api/vr/${buildingId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (!data || data.length === 0) {
+                    document.getElementById('loading').innerHTML = "<p>Không có scene nào cho tòa này!</p>";
+                    return;
+                }
+
+                // Cấu trúc scenes
+                const scenes = {};
+                data.forEach(scene => {
+                    scenes[scene.name] = {
+                        title: scene.name,
+                        description: scene.description || "",
+                        type: "equirectangular",
+                        panorama: scene.imageUrl,
+                        pitch: scene.pitch || 0,
+                        yaw: scene.yaw || 0,
+                        hotSpots: data.filter(h => h.targetScene && h.name === scene.name)
+                            .map(h => ({
+                                pitch: h.pitch,
+                                yaw: h.yaw,
+                                type: "scene",
+                                text: `Tới ${h.targetScene}`,
+                                sceneId: h.targetScene
+                            }))
+                    };
+                });
+
+                // Render list scene
+                sceneList.innerHTML = data.map((s, i) =>
+                    `<div class="scene-item ${i===0?'active':''}" data-scene="${s.name}">
+                        <i class="fas fa-door-open"></i>${s.name}
+                    </div>`).join("");
+
+                // Khởi tạo pannellum với góc nhìn rộng hơn
+                viewer = pannellum.viewer('panorama', {
+                    default: {
+                        firstScene: data[0].name,
+                        autoLoad: true,
+                        hfov: 140,  // Tăng góc nhìn ngang
+                        minHfov: 50,
+                        maxHfov: 180,
+                        compass: true,
+                        compassBackgroundColor: 'rgba(0,0,0,0.7)',
+                        autoRotateInactivityDelay: 3000,
+                        autoRotateStopDelay: 0
+                    },
+                    scenes: scenes
+                });
+
+                // Gán event đổi scene
+                document.querySelectorAll('.scene-item').forEach(item => {
+                    item.addEventListener('click', function() {
+                        const sceneId = this.getAttribute('data-scene');
+                        viewer.loadScene(sceneId);
+                    });
+                });
+
+                // Khi đổi scene -> update infoBox
+                viewer.on('scenechange', function() {
+                    const sceneId = viewer.getScene();
+                    const s = scenes[sceneId];
+                    infoBox.innerHTML = `<h2>${s.title}</h2><p>${s.description}</p>`;
+                    document.querySelectorAll('.scene-item').forEach(i => i.classList.remove('active'));
+                    document.querySelector(`.scene-item[data-scene="${sceneId}"]`).classList.add('active');
+                });
+
+                // Ẩn loading
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(err => {
+                console.error(err);
+                document.getElementById('loading').innerHTML = "<p>Lỗi khi tải dữ liệu!</p>";
+            });
+    }
+
+    // Các nút điều khiển
+    document.getElementById('zoomIn').addEventListener('click', ()=> viewer?.setHfov(Math.max(viewer.getHfov() - 15, 50)));
+    document.getElementById('zoomOut').addEventListener('click', ()=> viewer?.setHfov(Math.min(viewer.getHfov() + 15, 180)));
+    document.getElementById('resetView').addEventListener('click', ()=> viewer?.lookAt(0,0,140));
+    let autoRotating = false;
+    document.getElementById('autoRotate').addEventListener('click', function() {
+        autoRotating = !autoRotating;
+        viewer?.setAutoRotate(autoRotating ? 2 : 0);
+        this.style.background = autoRotating ? 'rgba(76,175,80,0.8)' : 'rgba(255,255,255,0.15)';
+    });
+    document.getElementById('fullscreenBtn').addEventListener('click', ()=> {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+    });
+</script>
+</body>
+</html>

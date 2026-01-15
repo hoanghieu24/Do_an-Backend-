@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/chatbot")
 public class ChatBotController {
@@ -15,9 +17,10 @@ public class ChatBotController {
 
     // API gửi câu hỏi tới ChatGPT và nhận câu trả lời
     @PostMapping("/openai")
-    public ResponseEntity<String> getChatGPTResponse(@RequestBody ChatRequest chatRequest) {
-        String userMessage = chatRequest.getUserMessage();
-        String chatGptResponse = chatBotService.getGeminiResponse(userMessage);
-        return ResponseEntity.ok(chatGptResponse);
+    public ResponseEntity<String> getChatGPTResponse(@RequestBody ChatRequest chatRequest,
+                                                     HttpSession session) {
+        String response = chatBotService.getAIResponse(chatRequest.getUserMessage(), session);
+        return ResponseEntity.ok(response);
     }
+
 }

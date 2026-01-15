@@ -27,11 +27,26 @@ public class WebConfig implements WebMvcConfigurer {
 //        // hoặc "file:/absolute/path/to/uploads/" nếu nằm ngoài
 //    }
 
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/img/**")
+//                .addResourceLocations("file:///C:/Users/Nitro%205/Desktop/DO_An_2/do_an/img/");
+//    }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/img/**")
-                .addResourceLocations("file:///C:/Users/Nitro%205/Desktop/DO_An_2/do_an/img/");
+                .addResourceLocations("file:///C:/Users/Nitro%205/Desktop/Do_An_tot_Nghiep/img/");
     }
+
+//    @Override
+//    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+//        registry.addResourceHandler("/repository/**")
+//                .addResourceLocations("file:C:/Users/Nitro 5/Desktop/Do_An_tot_Nghiep/img/");
+//    }
+
+
+
 
 
     @Bean
